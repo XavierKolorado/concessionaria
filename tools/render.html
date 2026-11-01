@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Estúdio de render</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <style>
       html, body { margin: 0; background: #000; }
       body.transparent, html.transparent { background: transparent; }
@@ -23,14 +24,14 @@
     <script type="module">
       import { PerspectiveCamera, Spherical, Vector3 } from "three";
       import { createStudio, loadCar, prepareCar } from "../js/hero3d.js";
-      import { featured } from "../js/config.js";
+      import { heroCar } from "../js/config.js";
 
       const q = new URLSearchParams(location.search);
       const n = (k, d) => (q.has(k) ? Number(q.get(k)) : d);
       const p = {
         r: n("r", 9), phi: n("phi", 1.33), theta: n("theta", 0.72), fov: n("fov", 28),
         tx: n("tx", 0), ty: n("ty", 0.55), tz: n("tz", 0.15), w: n("w", 1600), h: n("h", 1000),
-        bg: q.get("bg") !== "0", variant: q.get("variant") || featured.paints[0].variant,
+        bg: q.get("bg") !== "0", variant: q.get("variant") || heroCar.variant,
       };
 
       const shot = document.getElementById("shot");
@@ -47,7 +48,7 @@
       const studio = createStudio(shot, { quality: "high", preserveDrawingBuffer: true });
       studio.renderer.setPixelRatio(1);
       studio.renderer.setSize(p.w, p.h, false);
-      const gltf = prepareCar(await loadCar("../" + featured.model.src), featured.model.hiddenMeshes);
+      const gltf = prepareCar(await loadCar("../" + heroCar.src), heroCar.hiddenMeshes);
       await studio.applyVariant(gltf, p.variant);
       studio.scene.add(gltf.scene);
       studio.shadow.bake();
