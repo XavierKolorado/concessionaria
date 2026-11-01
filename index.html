@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vértice Motors | Esportivos e veículos de luxo</title>
+    <meta
+      name="description"
+      content="Vértice Motors: curadoria de esportivos e veículos de luxo, com atendimento privado em showroom. Projeto demonstrativo."
+    />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Vértice Motors" />
+    <meta property="og:title" content="Vértice Motors | Esportivos e veículos de luxo" />
+    <meta
+      property="og:description"
+      content="Curadoria de esportivos e veículos de luxo, com atendimento privado em showroom. Projeto demonstrativo."
+    />
+    <meta property="og:image" content="og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Arco GT em estúdio escuro, Vértice Motors" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap"
+    />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preload" as="image" href="images/arco/hero-poster.webp" media="(min-width: 761px)" />
+    <link rel="preload" as="image" href="images/arco/hero-poster-mobile.webp" media="(max-width: 760px)" />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.min.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <a href="#arco" class="skip-link">Pular para o conteúdo</a>
+
+    <header class="hdr-header" data-scrolled="false" data-open="false">
+      <div class="hdr-bar">
+        <a href="#topo" class="hdr-logo" aria-label="Vértice Motors, voltar ao início">
+          <span class="logo">
+            <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M3 5h7.5L16 21.5 21.5 5H29L18.6 27h-5.2z" fill="currentColor" />
+              <path d="M13.4 27h5.2L16 21.5z" fill="#8e1b22" />
+            </svg>
+            <span class="logo-type">VÉRTICE<span> MOTORS</span></span>
+          </span>
+        </a>
+
+        <nav class="hdr-nav" aria-label="Principal">
+          <ul>
+            <li><a href="#estoque">Veículos</a></li>
+            <li><a href="#sobre">Sobre nós</a></li>
+            <li><a href="#experiencia">Experiência</a></li>
+            <li><a href="#contato">Contato</a></li>
+          </ul>
+        </nav>
+
+        <a
+          class="btn btn-ghost hdr-cta"
+          data-wa="Olá! Gostaria de falar com um consultor da Vértice Motors."
+          target="_blank"
+          rel="noopener noreferrer"
+          >Falar com consultor</a
+        >
+
+        <button type="button" class="hdr-toggle" aria-expanded="false" aria-controls="menu-mobile">
+          <span class="sr-only">Abrir menu</span>
+          <span class="hdr-burger" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div id="menu-mobile" class="hdr-panel" hidden>
+        <nav aria-label="Menu">
+          <ul>
+            <li><a href="#estoque">Veículos</a></li>
+            <li><a href="#sobre">Sobre nós</a></li>
+            <li><a href="#experiencia">Experiência</a></li>
+            <li><a href="#contato">Contato</a></li>
+          </ul>
+        </nav>
+        <a
+          class="btn btn-primary"
+          data-wa="Olá! Gostaria de falar com um consultor da Vértice Motors."
+          target="_blank"
+          rel="noopener noreferrer"
+          >Falar com consultor no WhatsApp</a
+        >
+      </div>
+    </header>
+
+    <main id="topo">
+      <section class="hero-hero" aria-labelledby="hero-title" data-ready="false">
+        <div class="hero-stage">
+          <h1 id="hero-title" class="hero-name"><span class="hero-nameBrand">Vértice</span> Arco GT</h1>
+
+          <div class="hero-poster" data-faded="false">
+            <picture>
+              <source media="(max-width: 760px)" srcset="images/arco/hero-poster-mobile.webp" />
+              <img
+                src="images/arco/hero-poster.webp"
+                alt="Arco GT em estúdio, vista dianteira de três quartos"
+                fetchpriority="high"
+              />
+            </picture>
+          </div>
+
+          <div class="hero-canvas" data-visible="false" aria-hidden="true"></div>
+
+          <div class="hero-loading" role="status" hidden>
+            <span class="hero-loadingBar"></span>
+            <span class="hero-loadingText">Preparando o estúdio 0%</span>
+          </div>
+
+          <p class="hero-notice" role="status" hidden>
+            Não foi possível carregar o modelo 3D. Exibindo a foto de estúdio.
+          </p>
+
+          <button type="button" class="hero-load3d" hidden>Ver em 3D</button>
+        </div>
+
+        <div class="hero-copy">
+          <p class="hero-edition">Peça única do acervo Vértice</p>
+          <p class="hero-tagline">
+            Um cupê elétrico desenhado em uma só linha, do farol à lanterna. Silencioso no trânsito, brutal quando
+            você pede.
+          </p>
+          <div class="hero-actions">
+            <a href="#arco" class="btn btn-primary">Explorar veículo</a>
+            <a class="btn btn-ghost hero-consult" target="_blank" rel="noopener noreferrer">Falar com um consultor</a>
+          </div>
+        </div>
+
+        <dl class="hero-stats">
+          <div class="hero-stat">
+            <dt>Potência combinada</dt>
+            <dd>680<small>cv</small></dd>
+          </div>
+          <div class="hero-stat">
+            <dt>De 0 a 100 km/h</dt>
+            <dd>2,4<small>s</small></dd>
+          </div>
+          <div class="hero-stat">
+            <dt>Dois motores elétricos</dt>
+            <dd>AWD</dd>
+          </div>
+          <p class="hero-statsNote">Valores demonstrativos</p>
+        </dl>
+
+        <div class="hero-controls">
+          <fieldset class="hero-paints" hidden>
+            <legend>Cor: <span class="hero-paintName">Carmim</span></legend>
+          </fieldset>
+          <button type="button" class="hero-zoom" aria-pressed="false" hidden>Aproximar</button>
+          <p class="hero-hint" hidden>Arraste para girar</p>
+        </div>
+
+        <a href="#arco" class="hero-scroll" aria-label="Rolar para a apresentação do veículo"><span></span></a>
+      </section>
+
+      <section id="arco" class="sc-section" aria-labelledby="arco-title">
+        <div class="wrap">
+          <div class="reveal sc-intro">
+            <h2 id="arco-title" class="display section-title">Desenhado<br />em uma só linha.</h2>
+            <p class="lede">
+              O Arco GT é a peça central do nosso showroom: um estudo de forma pura, construído para ser visto de
+              perto e dirigido sem pressa.
+            </p>
+          </div>
+
+          <div class="sc-chapters">
+            <article class="sc-chapter" data-variant="0">
+              <div class="reveal sc-media">
+                <img src="images/arco/side.webp" width="2000" height="1000" alt="Perfil lateral do Arco GT carmim" loading="lazy" decoding="async" />
+              </div>
+              <div class="reveal sc-text" style="transition-delay: 120ms">
+                <p class="sc-kicker">Design</p>
+                <h3 class="sc-heading">Uma superfície contínua</h3>
+                <p class="sc-body">
+                  O vinco que nasce no farol percorre a lateral inteira e só termina na lanterna. Nenhuma entrada de ar
+                  a mais do que o necessário.
+                </p>
+              </div>
+            </article>
+
+            <article class="sc-chapter" data-variant="1">
+              <div class="reveal sc-media">
+                <img src="images/arco/headlight.webp" width="1600" height="1100" alt="Detalhe do farol e do capô do Arco GT" loading="lazy" decoding="async" />
+              </div>
+              <div class="reveal sc-text" style="transition-delay: 120ms">
+                <p class="sc-kicker">Tecnologia</p>
+                <h3 class="sc-heading">Luz em uma linha de dois milímetros</h3>
+                <p class="sc-body">
+                  Faróis de assinatura fina, integrados ao capô. À noite, o carro se reconhece antes de aparecer.
+                </p>
+              </div>
+            </article>
+
+            <article class="sc-chapter" data-variant="2">
+              <div class="reveal sc-media">
+                <img src="images/arco/top.webp" width="1800" height="1100" alt="Vista superior do Arco GT, teto de vidro e bancos vermelhos" loading="lazy" decoding="async" />
+              </div>
+              <div class="reveal sc-text" style="transition-delay: 120ms">
+                <p class="sc-kicker">Conforto</p>
+                <h3 class="sc-heading">Teto de vidro, cabine para dois</h3>
+                <p class="sc-body">
+                  Bancos em couro carmim, painel baixo e um teto inteiriço que deixa o céu entrar sem abrir mão do
+                  silêncio.
+                </p>
+              </div>
+            </article>
+
+            <article class="sc-chapter" data-variant="3">
+              <div class="reveal sc-media">
+                <img src="images/arco/wheel.webp" width="1600" height="1100" alt="Roda dianteira e disco de freio do Arco GT" loading="lazy" decoding="async" />
+              </div>
+              <div class="reveal sc-text" style="transition-delay: 120ms">
+                <p class="sc-kicker">Desempenho</p>
+                <h3 class="sc-heading">Torque inteiro desde o primeiro metro</h3>
+                <p class="sc-body">
+                  Um motor por eixo, tração integral e freios de disco ventilado dimensionados para repetir a frenagem
+                  volta após volta.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="galeria" class="gal-section" aria-labelledby="galeria-title">
+        <div class="wrap gal-head">
+          <h2 id="galeria-title" class="display section-title">Galeria</h2>
+          <div class="gal-nav">
+            <p class="gal-count">7 ângulos, três cores</p>
+            <button type="button" class="gal-prevBtn" aria-label="Imagens anteriores" disabled>
+              <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true" style="transform: scaleX(-1)"><path d="M0 6h18M13 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.2" /></svg>
+            </button>
+            <button type="button" class="gal-nextBtn" aria-label="Próximas imagens">
+              <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.2" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <ul class="gal-track"></ul>
+
+        <dialog class="gal-lightbox" aria-label="Visualização ampliada">
+          <figure class="gal-figure">
+            <img class="gal-full" alt="" />
+            <figcaption>
+              <span class="gal-caption"></span>
+              <span class="gal-counter" aria-live="polite"></span>
+            </figcaption>
+          </figure>
+          <button type="button" class="gal-close" autofocus>Fechar</button>
+          <button type="button" class="gal-step gal-prev" aria-label="Imagem anterior">
+            <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true" style="transform: scaleX(-1)"><path d="M0 6h18M13 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.2" /></svg>
+          </button>
+          <button type="button" class="gal-step gal-next" aria-label="Próxima imagem">
+            <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.2" /></svg>
+          </button>
+        </dialog>
+      </section>
+
+      <section id="especificacoes" class="sp-section" aria-labelledby="specs-title">
+        <div class="wrap">
+          <div class="sp-head">
+            <h2 id="specs-title" class="display section-title">Ficha técnica</h2>
+            <p class="sp-note">O Arco GT é um carro-conceito fictício. Todos os valores desta ficha são demonstrativos.</p>
+          </div>
+          <dl class="reveal sp-grid"></dl>
+          <div class="sp-cta">
+            <a
+              class="btn btn-primary"
+              data-wa="Olá! Gostaria de receber a ficha técnica completa do Arco GT."
+              target="_blank"
+              rel="noopener noreferrer"
+              >Receber ficha completa no WhatsApp</a
+            >
+            <a class="btn btn-ghost" href="#contato">Agendar uma visita</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="estoque" class="inv-section" aria-labelledby="estoque-title">
+        <div class="wrap">
+          <div class="inv-head">
+            <h2 id="estoque-title" class="display section-title">Em estoque</h2>
+            <p class="lede">
+              Cada carro passa por inspeção de 180 itens e chega com histórico documentado. Preços e quilometragens
+              desta página são demonstrativos.
+            </p>
+          </div>
+          <ul class="inv-grid"></ul>
+        </div>
+
+        <dialog class="inv-dialog" aria-labelledby="veiculo-titulo">
+          <div class="inv-sheet">
+            <div class="inv-sheetMedia">
+              <img alt="" />
+              <p class="inv-credit"></p>
+            </div>
+            <div class="inv-sheetBody">
+              <p class="inv-brand"></p>
+              <h3 id="veiculo-titulo" class="inv-sheetTitle"></h3>
+              <p class="inv-price"></p>
+              <dl class="inv-specList"></dl>
+              <p class="inv-note"></p>
+              <p class="inv-disclaimer">
+                Motor, potência e aceleração seguem dados de referência da versão. Ano, quilometragem, preço e histórico
+                são fictícios.
+              </p>
+              <div class="inv-sheetActions">
+                <a class="btn btn-red inv-wa" target="_blank" rel="noopener noreferrer">Consultar disponibilidade</a>
+                <button type="button" class="btn btn-ghost inv-schedule">Agendar visita para ver este carro</button>
+              </div>
+            </div>
+            <button type="button" class="inv-close" autofocus>Fechar</button>
+          </div>
+        </dialog>
+      </section>
+
+      <section id="sobre" class="ab-about" aria-labelledby="sobre-title">
+        <div class="wrap ab-aboutGrid">
+          <div class="reveal ab-aboutText">
+            <h2 id="sobre-title" class="display section-title">Poucos carros.<br />Escolhidos um a um.</h2>
+            <p class="lede">
+              A Vértice não trabalha com volume. Mantemos um estoque curto de esportivos e carros de luxo que nós mesmos
+              dirigiríamos, com procedência verificada e histórico aberto ao cliente.
+            </p>
+            <dl class="ab-facts">
+              <div>
+                <dt>Procedência</dt>
+                <dd>Laudo cautelar e histórico de revisões de cada carro.</dd>
+              </div>
+              <div>
+                <dt>Consignação</dt>
+                <dd>Vendemos o seu carro com a mesma curadoria do nosso estoque.</dd>
+              </div>
+              <div>
+                <dt>Pós-venda</dt>
+                <dd>Um consultor fixo acompanha você depois da compra.</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="reveal ab-aboutMedia" style="transition-delay: 150ms">
+            <img
+              src="images/arco/rear-graphite.webp"
+              width="1800"
+              height="1100"
+              alt="Arco GT grafite no showroom escuro, traseira iluminada"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="experiencia" class="ab-experience" aria-labelledby="experiencia-title">
+        <div class="wrap">
+          <div class="ab-expHead">
+            <h2 id="experiencia-title" class="display section-title">Experiência</h2>
+            <p class="lede">Do primeiro contato à entrega, quatro etapas e uma pessoa responsável por todas.</p>
+          </div>
+          <ol class="ab-steps">
+            <li class="reveal ab-step">
+              <span class="ab-stepNum" aria-hidden="true">1</span>
+              <h3>Conversa</h3>
+              <p>Um consultor entende o que você procura: uso, garagem, prazo. Sem roteiro de vendas.</p>
+            </li>
+            <li class="reveal ab-step" style="transition-delay: 90ms">
+              <span class="ab-stepNum" aria-hidden="true">2</span>
+              <h3>Visita privada</h3>
+              <p>O showroom fica reservado para você. O carro escolhido já está na luz certa quando você chega.</p>
+            </li>
+            <li class="reveal ab-step" style="transition-delay: 180ms">
+              <span class="ab-stepNum" aria-hidden="true">3</span>
+              <h3>Test drive</h3>
+              <p>Percurso combinado com antecedência, com o consultor ao lado ou sozinho, como preferir.</p>
+            </li>
+            <li class="reveal ab-step" style="transition-delay: 270ms">
+              <span class="ab-stepNum" aria-hidden="true">4</span>
+              <h3>Entrega</h3>
+              <p>Documentação resolvida pela nossa equipe e entrega no showroom ou na sua casa.</p>
+            </li>
+          </ol>
+          <div class="ab-expCta">
+            <button type="button" class="btn btn-red" data-interest="visita">Agendar uma visita</button>
+            <button type="button" class="btn btn-ghost" data-interest="informacoes">Solicitar mais informações</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="contato" class="ct-section" aria-labelledby="contato-title">
+        <div class="wrap ct-grid">
+          <div class="ct-intro">
+            <h2 id="contato-title" class="display section-title">Venha ver<br />de perto.</h2>
+            <p class="lede">
+              Deixe seu nome e telefone. Um consultor confirma o horário da visita ou envia as informações do carro que
+              você escolheu.
+            </p>
+            <div class="ct-direct">
+              <a
+                class="btn btn-primary"
+                data-wa="Olá! Gostaria de agendar uma visita ao showroom da Vértice Motors."
+                target="_blank"
+                rel="noopener noreferrer"
+                >Agendar pelo WhatsApp</a
+              >
+              <p class="ct-hours"><span>Seg. a sex., 9h às 19h</span><span>Sáb., 10h às 16h</span></p>
+            </div>
+          </div>
+
+          <div class="ct-panel">
+            <form class="ct-form" novalidate>
+              <fieldset class="ct-intent">
+                <legend class="sr-only">O que você quer fazer</legend>
+                <label class="ct-intentOption">
+                  <input type="radio" name="intent" value="visita" checked />
+                  <span>Agendar visita</span>
+                </label>
+                <label class="ct-intentOption">
+                  <input type="radio" name="intent" value="informacoes" />
+                  <span>Receber mais informações</span>
+                </label>
+              </fieldset>
+
+              <div class="ct-field">
+                <label for="f-name">Nome</label>
+                <input id="f-name" name="name" type="text" autocomplete="name" maxlength="80" />
+                <p id="e-name" class="ct-error" hidden></p>
+              </div>
+
+              <div class="ct-field">
+                <label for="f-phone">Telefone com DDD</label>
+                <input
+                  id="f-phone"
+                  name="phone"
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel-national"
+                  placeholder="(11) 91234-5678"
+                />
+                <p id="e-phone" class="ct-error" hidden></p>
+              </div>
+
+              <div class="ct-field">
+                <label for="f-vehicle">Veículo de interesse</label>
+                <div class="ct-selectWrap">
+                  <select id="f-vehicle" name="vehicle">
+                    <option value="" disabled selected>Selecione</option>
+                  </select>
+                </div>
+                <p id="e-vehicle" class="ct-error" hidden></p>
+              </div>
+
+              <button type="submit" class="btn btn-primary ct-submit">Agendar visita</button>
+              <p class="ct-legal">
+                Demonstração: os dados ficam apenas no seu navegador e não são enviados a nenhum servidor.
+              </p>
+            </form>
+
+            <div class="ct-done" tabindex="-1" role="status" hidden>
+              <span class="ct-check" aria-hidden="true"></span>
+              <h3>Pedido registrado nesta demonstração</h3>
+              <p>
+                Este formulário ainda não está conectado ao sistema da concessionária, então nenhum dado foi enviado.
+                Para falar agora com um consultor, continue pelo WhatsApp com a mensagem já preenchida.
+              </p>
+              <dl class="ct-recap"></dl>
+              <div class="ct-doneActions">
+                <a class="btn btn-red ct-continue" target="_blank" rel="noopener noreferrer">Continuar no WhatsApp</a>
+                <button type="button" class="btn btn-ghost ct-reset">Fazer outro pedido</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ft-footer">
+      <div class="wrap">
+        <div class="ft-top">
+          <div class="ft-brand">
+            <a href="#topo" aria-label="Vértice Motors, voltar ao início" class="ft-logo">
+              <span class="logo">
+                <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+                  <path d="M3 5h7.5L16 21.5 21.5 5H29L18.6 27h-5.2z" fill="currentColor" />
+                  <path d="M13.4 27h5.2L16 21.5z" fill="#8e1b22" />
+                </svg>
+                <span class="logo-type">VÉRTICE<span> MOTORS</span></span>
+              </span>
+            </a>
+            <p>Esportivos e carros de luxo, poucos de cada vez.</p>
+          </div>
+
+          <nav aria-label="Rodapé" class="ft-col">
+            <h2>Navegação</h2>
+            <ul>
+              <li><a href="#estoque">Veículos</a></li>
+              <li><a href="#sobre">Sobre nós</a></li>
+              <li><a href="#experiencia">Experiência</a></li>
+              <li><a href="#contato">Contato</a></li>
+              <li><a href="#galeria">Galeria</a></li>
+            </ul>
+          </nav>
+
+          <div class="ft-col">
+            <h2>Showroom</h2>
+            <address><span>Av. Exemplo, 1000</span><span>São Paulo, SP</span></address>
+            <p><span>Seg. a sex., 9h às 19h</span><span>Sáb., 10h às 16h</span></p>
+          </div>
+
+          <div class="ft-col">
+            <h2>Contato</h2>
+            <ul>
+              <li>
+                <a data-wa="Olá! Gostaria de falar com a Vértice Motors." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                <small class="wa-placeholder"> (número fictício)</small>
+              </li>
+              <li><span>(00) 0000-0000</span><small> (fictício)</small></li>
+              <li><span>contato@vertice-motors.example</span></li>
+            </ul>
+            <h2 class="ft-socialTitle">Redes sociais</h2>
+            <ul>
+              <li class="ft-placeholder">Instagram <small>(em breve)</small></li>
+              <li class="ft-placeholder">YouTube <small>(em breve)</small></li>
+              <li class="ft-placeholder">LinkedIn <small>(em breve)</small></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ft-bottom">
+          <p class="ft-demo">
+            Projeto demonstrativo. A Vértice Motors, o Arco GT, endereços, contatos, preços e quilometragens são fictícios.
+            Marcas e modelos citados pertencem aos seus fabricantes.
+          </p>
+          <details class="ft-credits">
+            <summary>Créditos de imagens e modelo 3D</summary>
+            <ul>
+              <li>
+                Modelo 3D “Car Concept” por Eric Chadwick, a partir de modelo CC0 de Unity Fan, Darmstadt Graphics Group
+                GmbH.
+                <a class="link" href="https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CarConcept" target="_blank" rel="noopener noreferrer">Fonte</a>,
+                <a class="link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.
+                Renders do Arco GT gerados a partir deste modelo.
+              </li>
+            </ul>
+          </details>
+          <p class="ft-copy">© <span class="ft-year">2026</span> Vértice Motors (fictícia)</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
