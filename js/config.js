@@ -10,40 +10,18 @@ export function whatsappLink(message) {
   return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
-// Veículo do HERO. O modelo é um carro-conceito fictício, então todos os números são demonstrativos.
-export const featured = {
-  name: "Arco GT",
-  model: {
-    src: "models/car.glb",
-    hiddenMeshes: ["License Plate", "InteriorSteeringEmblem"],
-  },
-  // Nomes iguais às variantes KHR_materials_variants do arquivo GLB.
-  paints: [
-    { variant: "Carmine Candy", label: "Carmim", swatch: "#6e0f18" },
-    { variant: "Torched Graphite", label: "Grafite queimado", swatch: "#2b2d31" },
-    { variant: "Pearly Swirly", label: "Pérola iridescente", swatch: "#b9b3c9" },
-  ],
-  specs: [
-    { label: "Motorização", value: "2 motores elétricos", detail: "um por eixo, tração integral" },
-    { label: "Potência", value: "680", unit: "cv", detail: "potência combinada" },
-    { label: "Torque", value: "850", unit: "Nm", detail: "disponível desde a partida" },
-    { label: "Aceleração", value: "2,4", unit: "s", detail: "de 0 a 100 km/h" },
-    { label: "Velocidade máxima", value: "300", unit: "km/h", detail: "limitada eletronicamente" },
-    { label: "Transmissão", value: "Direta", detail: "uma marcha, sem trocas" },
-    { label: "Quilometragem", value: "1.200", unit: "km", detail: "unidade de exposição" },
-    { label: "Ano", value: "2025", detail: "modelo 2025" },
-  ],
+// Carro do HERO: elemento visual da marca, sem ligação com o estoque. O modelo é um carro-conceito.
+export const heroCar = {
+  src: "models/car.glb",
+  hiddenMeshes: ["License Plate", "InteriorSteeringEmblem"],
+  // Nome igual a uma variante KHR_materials_variants do arquivo GLB.
+  variant: "Carmine Candy",
 };
 
-// Renders gerados a partir do próprio modelo 3D (tools/render.html).
-export const gallery = [
-  { src: "images/arco/front.webp", width: 1800, height: 1100, alt: "Arco GT carmim visto de frente, faróis em linha fina acesos" },
-  { src: "images/arco/rear-graphite.webp", width: 1800, height: 1100, alt: "Arco GT grafite queimado, traseira de três quartos com lanternas acesas" },
-  { src: "images/arco/side.webp", width: 2000, height: 1000, alt: "Perfil lateral do Arco GT carmim" },
-  { src: "images/arco/pearl.webp", width: 1800, height: 1100, alt: "Arco GT em pérola iridescente, dianteira de três quartos" },
-  { src: "images/arco/top.webp", width: 1800, height: 1100, alt: "Arco GT visto de cima, teto de vidro mostrando o interior vermelho" },
-  { src: "images/arco/headlight.webp", width: 1600, height: 1100, alt: "Detalhe do capô e do farol do Arco GT carmim" },
-  { src: "images/arco/wheel.webp", width: 1600, height: 1100, alt: "Detalhe da roda dianteira e do disco de freio do Arco GT" },
+export const categories = [
+  { id: "esportivo", label: "Esportivos", text: "Cupês de motor potente e direção afiada.", cover: "porsche-911-carrera-s" },
+  { id: "seda", label: "Sedãs", text: "Quatro portas, conforto de viagem e desempenho de pista.", cover: "porsche-panamera-4s" },
+  { id: "suv", label: "SUVs", text: "Espaço para a família sem abrir mão do luxo.", cover: "range-rover-sport" },
 ];
 
 // Estoque demonstrativo. Ano, quilometragem e preço são fictícios.
@@ -53,6 +31,8 @@ export const inventory = [
     id: "porsche-911-carrera-s",
     brand: "Porsche",
     model: "911 Carrera S",
+    category: "esportivo",
+    featured: true,
     generation: "Geração 992",
     year: 2022,
     km: 18400,
@@ -76,6 +56,7 @@ export const inventory = [
     id: "audi-rs-e-tron-gt",
     brand: "Audi",
     model: "RS e-tron GT",
+    category: "seda",
     generation: "Elétrico, tração quattro",
     year: 2023,
     km: 9700,
@@ -99,6 +80,7 @@ export const inventory = [
     id: "bmw-m4-competition",
     brand: "BMW",
     model: "M4 Competition",
+    category: "esportivo",
     generation: "Geração G82",
     year: 2023,
     km: 12300,
@@ -122,6 +104,7 @@ export const inventory = [
     id: "mercedes-amg-gt",
     brand: "Mercedes-AMG",
     model: "GT",
+    category: "esportivo",
     generation: "Cupê, motor dianteiro central",
     year: 2019,
     km: 26800,
@@ -141,9 +124,133 @@ export const inventory = [
       source: "https://commons.wikimedia.org/wiki/File:2019_Mercedes_AMG_GT_Premium_Edition.jpg",
     },
   },
+  {
+    id: "bmw-m5-competition",
+    brand: "BMW",
+    model: "M5 Competition",
+    category: "seda",
+    featured: true,
+    generation: "Geração F90",
+    year: 2022,
+    km: 21500,
+    price: 829000,
+    engine: "4.4 V8 biturbo",
+    power: "625 cv",
+    acceleration: "3,3 s de 0 a 100 km/h",
+    transmission: "M Steptronic de 8 marchas, tração xDrive",
+    note: "Freios carbocerâmicos e bancos M Carbon.",
+    image: {
+      src: "images/stock/m5.webp",
+      alt: "BMW M5 Competition branco estacionado em frente a um showroom",
+      width: 1400,
+      height: 650,
+      credit: "Damian B Oh",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:BMW_F90_LCI_M5_Competition_Alpine_White_(1).jpg",
+    },
+  },
+  {
+    id: "porsche-panamera-4s",
+    brand: "Porsche",
+    model: "Panamera 4S",
+    category: "seda",
+    generation: "Geração 971",
+    year: 2018,
+    km: 38900,
+    price: 589000,
+    engine: "2.9 V6 biturbo",
+    power: "440 cv",
+    acceleration: "4,4 s de 0 a 100 km/h",
+    transmission: "PDK de 8 marchas, tração integral",
+    note: "Teto solar panorâmico e som Bose.",
+    image: {
+      src: "images/stock/panamera.webp",
+      alt: "Porsche Panamera 4S preto em exposição, vista dianteira de três quartos",
+      width: 1400,
+      height: 803,
+      credit: "Thesupermat",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Festival_automobile_international_2017_-_Porsche_Panamera_4S_-_001.jpg",
+    },
+  },
+  {
+    id: "range-rover-sport",
+    brand: "Land Rover",
+    model: "Range Rover Sport P400",
+    category: "suv",
+    featured: true,
+    generation: "Autobiography, geração L461",
+    year: 2023,
+    km: 14200,
+    price: 989000,
+    engine: "3.0 6 cilindros turbo, híbrido leve",
+    power: "400 cv",
+    acceleration: "5,9 s de 0 a 100 km/h",
+    transmission: "Automática de 8 marchas, tração integral",
+    note: "Suspensão a ar e pacote de assistência à condução.",
+    image: {
+      src: "images/stock/range-rover-sport.webp",
+      alt: "Range Rover Sport cinza claro com rodas pretas, vista dianteira de três quartos",
+      width: 1400,
+      height: 933,
+      credit: "Damian B Oh",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Land_Rover_Range_Rover_Sport_P400_Autobiography_L461_Borasco_Grey_(3).jpg",
+    },
+  },
+  {
+    id: "porsche-cayenne-coupe-s",
+    brand: "Porsche",
+    model: "Cayenne Coupé S",
+    category: "suv",
+    generation: "Geração E3",
+    year: 2021,
+    km: 27600,
+    price: 719000,
+    engine: "2.9 V6 biturbo",
+    power: "440 cv",
+    acceleration: "5,0 s de 0 a 100 km/h",
+    transmission: "Tiptronic S de 8 marchas, tração integral",
+    note: "Teto de vidro fixo e escapamento esportivo.",
+    image: {
+      src: "images/stock/cayenne-coupe.webp",
+      alt: "Porsche Cayenne Coupé S cinza, vista traseira de três quartos",
+      width: 1400,
+      height: 785,
+      credit: "Alexander Migl",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Porsche_Cayenne_Coupe_S_IMG_2704.jpg",
+    },
+  },
+  {
+    id: "mercedes-amg-g63",
+    brand: "Mercedes-AMG",
+    model: "G 63",
+    category: "suv",
+    generation: "Geração W463",
+    year: 2020,
+    km: 31800,
+    price: 1349000,
+    engine: "4.0 V8 biturbo",
+    power: "585 cv",
+    acceleration: "4,5 s de 0 a 100 km/h",
+    transmission: "AMG Speedshift de 9 marchas, tração 4MATIC",
+    note: "Três bloqueios de diferencial e rodas AMG de 22 polegadas.",
+    image: {
+      src: "images/stock/g63.webp",
+      alt: "Mercedes-AMG G 63 cinza escuro, vista dianteira de três quartos",
+      width: 1400,
+      height: 938,
+      credit: "Vauxford",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:2018_Mercedes-AMG_G_63_4MATIC_Automatic_4.0_Front.jpg",
+    },
+  },
 ];
 
 export const formatPrice = (n) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+export const categoryLabel = (id) => categories.find((c) => c.id === id)?.label.replace(/s$/, "") ?? "";
 
 export const formatKm = (n) => `${n.toLocaleString("pt-BR")} km`;

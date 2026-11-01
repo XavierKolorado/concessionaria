@@ -25,6 +25,7 @@ import {
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { Reflector } from "three/addons/objects/Reflector.js";
 import { HorizontalBlurShader } from "three/addons/shaders/HorizontalBlurShader.js";
 import { VerticalBlurShader } from "three/addons/shaders/VerticalBlurShader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
@@ -231,6 +232,89 @@ export function createStudio(container, { quality = "high", preserveDrawingBuffe
   return { renderer, scene, shadow, dispose, applyVariant };
 }
 
+const floorVertex = /* glsl */ `
+  uniform mat4 textureMatrix;
+  varying vec4 vUv;
+  varying vec2 vLocal;
+  #include <common>
+  #include <logdepthbuf_pars_vertex>
+  void main() {
+    vUv = textureMatrix * vec4(position, 1.0);
+    vLocal = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    #include <logdepthbuf_vertex>
+  }
+`;
+
+const floorFragment = /* glsl */ `
+  uniform vec3 color;
+  uniform sampler2D tDiffuse;
+  uniform float strength;
+  uniform float opacity;
+  varying vec4 vUv;
+  varying vec2 vLocal;
+  #include <logdepthbuf_pars_fragment>
+  void main() {
+    #include <logdepthbuf_fragment>
+    vec4 reflection = texture2DProj(tDiffuse, vUv);
+    float d = distance(vLocal, vec2(0.5)) * 2.0;
+    float fade = 1.0 - smoothstep(0.18, 1.0, d);
+    vec3 tint = reflection.rgb * color * strength;
+    float presence = clamp(max(tint.r, max(tint.g, tint.b)) * 2.5, 0.0, 1.0);
+    gl_FragColor = vec4(tint, fade * opacity * max(presence, 0.6));
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+
+function createShowroom(scene, { reflective, width, height, hide = [] }) {
+  const group = new Group();
+  const disposables = [];
+
+  let floor = null;
+  if (reflective) {
+    const geometry = new PlaneGeometry(26, 26);
+    floor = new Reflector(geometry, {
+      textureWidth: width,
+      textureHeight: height,
+      color: new Color("#ffffff"),
+      clipBias: 0.003,
+      shader: {
+        name: "ShowroomFloor",
+        uniforms: {
+          color: { value: null },
+          tDiffuse: { value: null },
+          textureMatrix: { value: null },
+          strength: { value: 0.32 },
+          opacity: { value: 0 },
+        },
+        vertexShader: floorVertex,
+        fragmentShader: floorFragment,
+      },
+    });
+    floor.material.transparent = true;
+    floor.material.depthWrite = false;
+    floor.rotation.x = -Math.PI / 2;
+    floor.renderOrder = 2;
+    const renderReflection = floor.onBeforeRender;
+    floor.onBeforeRender = function (...args) {
+      hide.forEach((o) => (o.visible = false));
+      renderReflection.apply(this, args);
+      hide.forEach((o) => (o.visible = true));
+    };
+    group.add(floor);
+    disposables.push(geometry, floor);
+  }
+
+  scene.add(group);
+
+  return {
+    setOpacity: (value) => floor && (floor.material.uniforms.opacity.value = value),
+    resize: (w, h) => floor?.getRenderTarget().setSize(w, h),
+    dispose: () => disposables.forEach((d) => d.dispose()),
+  };
+}
+
 export async function createHeroScene(container, options) {
   const { src, hiddenMeshes, variant, quality, compact, reducedMotion, onProgress } = options;
   const studio = createStudio(container, { quality });
@@ -250,6 +334,15 @@ export async function createHeroScene(container, options) {
   scene.add(gltf.scene);
   studio.shadow.bake();
 
+  const reflectionScale = () => Math.min(window.devicePixelRatio, 1.5) * 0.35;
+  const showroom = createShowroom(scene, {
+    reflective: quality === "high",
+    width: Math.round(container.clientWidth * reflectionScale()),
+    height: Math.round(container.clientHeight * reflectionScale()),
+    hide: [studio.shadow.group],
+  });
+  const floorOpacity = 0.9;
+
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.copy(target);
   controls.enablePan = false;
@@ -258,17 +351,29 @@ export async function createHeroScene(container, options) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
   controls.rotateSpeed = 0.55;
+  controls.autoRotateSpeed = -0.7;
   renderer.domElement.style.touchAction = "pan-y";
 
   const blockWheel = (e) => e.stopPropagation();
   container.addEventListener("wheel", blockWheel, { capture: true });
 
+  let autoRotate = !reducedMotion;
+  let resumeTimer = null;
+  const onStart = () => {
+    clearTimeout(resumeTimer);
+    controls.autoRotate = false;
+  };
+  const onEnd = () => {
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => (controls.autoRotate = autoRotate), 3500);
+  };
+  controls.addEventListener("start", onStart);
+  controls.addEventListener("end", onEnd);
+
   const restTheta = 0.72;
   const restPhi = 1.4;
   let restRadius = 10;
-  let nearRadius = 6.8;
-  let zoomed = false;
-  let zooming = false;
+  let fitting = false;
   let introStart = null;
   let introDone = reducedMotion;
   const pointer = { x: 0, y: 0 };
@@ -280,18 +385,20 @@ export async function createHeroScene(container, options) {
     const { width, height } = container.getBoundingClientRect();
     if (!width || !height) return;
     renderer.setSize(width, height, false);
+    showroom.resize(Math.round(width * reflectionScale()), Math.round(height * reflectionScale()));
     camera.aspect = width / height;
+    const shift = compact || width < 1000 ? 0 : -0.07 * width;
+    camera.setViewOffset(width, height, shift, 0, width, height);
     camera.updateProjectionMatrix();
     const aspect = camera.aspect;
-    const fill = compact ? 0.96 : aspect > 1.9 ? 0.5 : width < 1200 && aspect > 1.1 ? 0.44 : 0.58;
+    const fill = compact ? 0.96 : aspect > 1.9 ? 0.46 : width < 1200 && aspect > 1.1 ? 0.42 : 0.5;
     const fit = CAR_SPAN / fill / 2 / (Math.tan(MathUtils.degToRad(camera.fov / 2)) * aspect);
     restRadius = MathUtils.clamp(fit, 8.5, 18);
-    nearRadius = restRadius * 0.68;
-    controls.minDistance = nearRadius - 1;
+    controls.minDistance = restRadius * 0.68 - 1;
     controls.maxDistance = restRadius + 2;
     controls.minPolarAngle = compact ? restPhi : 0.95;
     controls.maxPolarAngle = compact ? restPhi : 1.48;
-    zooming = true;
+    fitting = true;
   };
   layout();
 
@@ -300,6 +407,8 @@ export async function createHeroScene(container, options) {
   camera.position.setFromSpherical(new Spherical(startRadius, restPhi, startTheta)).add(target);
   camera.lookAt(target);
   scene.environmentIntensity = reducedMotion ? 1 : 0.05;
+  showroom.setOpacity(reducedMotion ? floorOpacity : 0);
+  controls.autoRotate = introDone && autoRotate;
   controls.update();
 
   const resizeObserver = new ResizeObserver(layout);
@@ -326,20 +435,23 @@ export async function createHeroScene(container, options) {
 
     if (!introDone) {
       if (introStart === null) introStart = now;
-      const t = Math.min((now - introStart) / 2600, 1);
+      const t = Math.min((now - introStart) / 2800, 1);
       const k = easeOutCubic(t);
       const theta = MathUtils.lerp(-0.55, restTheta, k);
       const radius = MathUtils.lerp(restRadius * 1.45, restRadius, k);
       camera.position.setFromSpherical(new Spherical(radius, restPhi, theta)).add(target);
       scene.environmentIntensity = MathUtils.lerp(0.05, 1, k);
-      if (t >= 1) introDone = true;
+      showroom.setOpacity(MathUtils.lerp(0, floorOpacity, k));
+      if (t >= 1) {
+        introDone = true;
+        controls.autoRotate = autoRotate;
+      }
     } else {
-      if (zooming) {
+      if (fitting) {
         offset.copy(camera.position).sub(controls.target);
         spherical.setFromVector3(offset);
-        const wanted = zoomed ? nearRadius : restRadius;
-        spherical.radius = MathUtils.damp(spherical.radius, wanted, 4, delta);
-        if (Math.abs(spherical.radius - wanted) < 0.01) zooming = false;
+        spherical.radius = MathUtils.damp(spherical.radius, restRadius, 4, delta);
+        if (Math.abs(spherical.radius - restRadius) < 0.01) fitting = false;
         camera.position.copy(controls.target).add(offset.setFromSpherical(spherical));
       }
       if (!reducedMotion && !compact) {
@@ -348,23 +460,27 @@ export async function createHeroScene(container, options) {
         controls.target.set(target.x - parallax.x, target.y - parallax.y, target.z);
       }
     }
-    controls.update();
+    controls.update(delta);
     renderer.render(scene, camera);
   });
 
   return {
-    setVariant: (name) => applyVariant(gltf, name),
-    setZoom: (value) => {
-      zoomed = value;
-      zooming = true;
+    setAutoRotate: (value) => {
+      autoRotate = value;
+      clearTimeout(resumeTimer);
+      controls.autoRotate = introDone && value;
     },
     dispose: () => {
       renderer.setAnimationLoop(null);
+      clearTimeout(resumeTimer);
       resizeObserver.disconnect();
       visibility.disconnect();
       container.removeEventListener("wheel", blockWheel, { capture: true });
       container.removeEventListener("pointermove", onPointer);
+      controls.removeEventListener("start", onStart);
+      controls.removeEventListener("end", onEnd);
       controls.dispose();
+      showroom.dispose();
       studio.dispose();
     },
   };

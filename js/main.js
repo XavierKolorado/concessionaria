@@ -1,4 +1,4 @@
-import { featured, formatKm, formatPrice, gallery, inventory, site, whatsappLink } from "./config.js";
+import { categories, categoryLabel, formatKm, formatPrice, heroCar, inventory, site, whatsappLink } from "./config.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -71,7 +71,7 @@ function detectTier() {
   const memory = navigator.deviceMemory ?? 8;
   const cores = navigator.hardwareConcurrency ?? 8;
   if (navigator.connection?.saveData || memory <= 2 || cores <= 2) return "lite";
-  if (matchMedia("(max-width: 760px)").matches || memory <= 4 || cores <= 4) return "low";
+  if (matchMedia("(max-width: 760px)").matches || memory <= 4 || cores < 4) return "low";
   return "high";
 }
 
@@ -84,22 +84,13 @@ function initHero() {
   const loadingText = $(".hero-loadingText", hero);
   const notice = $(".hero-notice", hero);
   const load3d = $(".hero-load3d", hero);
-  const paints = $(".hero-paints", hero);
-  const paintName = $(".hero-paintName", hero);
-  const zoom = $(".hero-zoom", hero);
+  const rotate = $(".hero-rotate", hero);
   const hint = $(".hero-hint", hero);
-  const consult = $(".hero-consult", hero);
   const compact = matchMedia("(max-width: 760px)").matches;
-
-  let paint = featured.paints[0];
   let scene = null;
 
-  const updateConsult = () => {
-    consult.href = whatsappLink(
-      `Olá! Vi o ${featured.name} na cor ${paint.label} no site da Vértice Motors e gostaria de falar com um consultor.`
-    );
-  };
-  updateConsult();
+  $(".hero-stockCount", hero).textContent = inventory.length;
+  $(".hero-categoryCount", hero).textContent = categories.length;
 
   const posterImg = $("img", poster);
   const hidePoster = () => {
@@ -108,30 +99,19 @@ function initHero() {
   posterImg.addEventListener("error", hidePoster);
   if (posterImg.complete && posterImg.naturalWidth === 0) hidePoster();
 
-  featured.paints.forEach((p, i) => {
-    const label = document.createElement("label");
-    label.className = "hero-swatch";
-    label.style.setProperty("--swatch", p.swatch);
-    label.innerHTML = `<input type="radio" name="paint" value="${escape(p.variant)}" ${i === 0 ? "checked" : ""} disabled /><span class="sr-only">${escape(p.label)}</span>`;
-    $("input", label).addEventListener("change", () => {
-      paint = p;
-      paintName.textContent = p.label;
-      updateConsult();
-      scene?.setVariant(p.variant);
-    });
-    paints.append(label);
-  });
+  const setRotateLabel = (on) => {
+    rotate.textContent = on ? "Pausar rotação" : "Girar automaticamente";
+    rotate.setAttribute("aria-pressed", String(!on));
+  };
 
-  zoom.addEventListener("click", () => {
-    const pressed = zoom.getAttribute("aria-pressed") !== "true";
-    zoom.setAttribute("aria-pressed", pressed);
-    zoom.textContent = pressed ? "Afastar" : "Aproximar";
-    scene?.setZoom(pressed);
+  rotate.addEventListener("click", () => {
+    const on = rotate.getAttribute("aria-pressed") === "true";
+    scene?.setAutoRotate(on);
+    setRotateLabel(on);
   });
 
   const fail = () => {
     loading.hidden = true;
-    paints.hidden = true;
     notice.hidden = false;
     canvasBox.innerHTML = "";
     hero.dataset.ready = "true";
@@ -140,20 +120,19 @@ function initHero() {
   const start = async () => {
     load3d.hidden = true;
     loading.hidden = false;
-    paints.hidden = false;
     hero.dataset.ready = "false";
     try {
       const { createHeroScene } = await import("./hero3d.js");
       scene = await createHeroScene(canvasBox, {
-        src: featured.model.src,
-        hiddenMeshes: featured.model.hiddenMeshes,
-        variant: paint.variant,
+        src: heroCar.src,
+        hiddenMeshes: heroCar.hiddenMeshes,
+        variant: heroCar.variant,
         quality: tier === "high" ? "high" : "low",
         compact,
         reducedMotion: reducedMotion.matches,
         onProgress: (p) => {
           loadingBar.style.transform = `scaleX(${p / 100})`;
-          loadingText.textContent = `Preparando o estúdio ${Math.round(p)}%`;
+          loadingText.textContent = `Acendendo o showroom ${Math.round(p)}%`;
         },
       });
     } catch {
@@ -164,8 +143,8 @@ function initHero() {
     canvasBox.dataset.visible = "true";
     poster.dataset.faded = "true";
     poster.setAttribute("aria-hidden", "true");
-    $$("input", paints).forEach((i) => (i.disabled = false));
-    zoom.hidden = false;
+    setRotateLabel(!reducedMotion.matches);
+    rotate.hidden = false;
     hint.hidden = false;
     hint.textContent = compact ? "Deslize para os lados para girar" : "Arraste para girar";
     hero.dataset.ready = "true";
@@ -182,138 +161,25 @@ function initHero() {
   }
 }
 
-function initGallery() {
-  const track = $(".gal-track");
-  const prevBtn = $(".gal-prevBtn");
-  const nextBtn = $(".gal-nextBtn");
-  const dialog = $(".gal-lightbox");
-  const full = $(".gal-full", dialog);
-  const caption = $(".gal-caption", dialog);
-  const counter = $(".gal-counter", dialog);
-  let index = 0;
-  let opener = null;
-  let touchX = null;
-
-  track.innerHTML = gallery
-    .map(
-      (img, i) => `<li class="gal-item" data-shape="${i % 3}">
-        <button type="button" class="gal-thumb" data-index="${i}">
-          <img src="${img.src}" width="${img.width}" height="${img.height}" alt="${escape(img.alt)}" loading="lazy" decoding="async" />
-          <span class="gal-zoomHint">Ampliar</span>
-        </button>
-      </li>`
-    )
-    .join("");
-
-  const updateEdges = () => {
-    prevBtn.disabled = track.scrollLeft <= 4;
-    nextBtn.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
-  };
-  updateEdges();
-  track.addEventListener("scroll", updateEdges, { passive: true });
-  window.addEventListener("resize", updateEdges);
-
-  const scrollByCard = (dir) => {
-    const card = $("li", track);
-    track.scrollBy({ left: dir * (card.getBoundingClientRect().width + 16), behavior: "smooth" });
-  };
-  prevBtn.addEventListener("click", () => scrollByCard(-1));
-  nextBtn.addEventListener("click", () => scrollByCard(1));
-
-  const show = (i) => {
-    index = (i + gallery.length) % gallery.length;
-    const img = gallery[index];
-    full.src = img.src;
-    full.width = img.width;
-    full.height = img.height;
-    full.alt = img.alt;
-    caption.textContent = img.alt;
-    counter.textContent = `${index + 1} de ${gallery.length}`;
-    full.style.animation = "none";
-    void full.offsetWidth;
-    full.style.animation = "";
-  };
-
-  track.addEventListener("click", (e) => {
-    const btn = e.target.closest(".gal-thumb");
-    if (!btn) return;
-    opener = btn;
-    show(Number(btn.dataset.index));
-    dialog.showModal();
-  });
-
-  dialog.addEventListener("close", () => opener?.focus());
-  dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
-  dialog.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") show(index + 1);
-    if (e.key === "ArrowLeft") show(index - 1);
-  });
-  dialog.addEventListener("touchstart", (e) => (touchX = e.touches[0].clientX), { passive: true });
-  dialog.addEventListener("touchend", (e) => {
-    if (touchX === null) return;
-    const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
-    touchX = null;
-  });
-  $(".gal-close", dialog).addEventListener("click", () => dialog.close());
-  $(".gal-prev", dialog).addEventListener("click", () => show(index - 1));
-  $(".gal-next", dialog).addEventListener("click", () => show(index + 1));
-}
-
-function initSpecs() {
-  $(".sp-grid").innerHTML = featured.specs
-    .map(
-      (s) => `<div class="sp-cell${/^[\d.,]+$/.test(s.value) ? "" : " sp-lead"}">
-        <dt>${escape(s.label)}</dt>
-        <dd class="sp-value">${escape(s.value)}${s.unit ? `<span class="sp-unit">${escape(s.unit)}</span>` : ""}</dd>
-        <dd class="sp-detail">${escape(s.detail)}</dd>
-      </div>`
-    )
-    .join("");
-}
-
 const carLabel = (car) => `${car.brand} ${car.model}`;
 const availabilityMessage = (car) =>
   `Olá! O ${carLabel(car)} ${car.year}, com ${formatKm(car.km)}, ainda está disponível na Vértice Motors?`;
+const findCar = (id) => inventory.find((c) => c.id === id);
+const imgTag = (car, sizes = "") =>
+  `<img src="${car.image.src}" width="${car.image.width}" height="${car.image.height}" alt="${escape(car.image.alt)}" loading="lazy" decoding="async"${sizes} />`;
 
 function selectInterest(vehicle, intent) {
   document.dispatchEvent(new CustomEvent("vertice:interest", { detail: { vehicle, intent } }));
   $("#contato").scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth" });
 }
 
-function initInventory() {
-  const grid = $(".inv-grid");
+function initVehicleDialog() {
   const dialog = $(".inv-dialog");
   let opener = null;
   let active = null;
 
-  grid.innerHTML = inventory
-    .map(
-      (car, i) => `<li class="reveal inv-card" style="transition-delay: ${(i % 2) * 120}ms">
-        <div class="inv-media">
-          <img src="${car.image.src}" width="${car.image.width}" height="${car.image.height}" alt="${escape(car.image.alt)}" loading="lazy" decoding="async" />
-        </div>
-        <div class="inv-body">
-          <div class="inv-title">
-            <p class="inv-brand">${escape(car.brand)}</p>
-            <h3>${escape(car.model)}</h3>
-          </div>
-          <dl class="inv-facts">
-            <div><dt>Ano</dt><dd>${car.year}</dd></div>
-            <div><dt>Quilometragem</dt><dd>${formatKm(car.km)}</dd></div>
-            <div><dt>Potência</dt><dd>${escape(car.power)}</dd></div>
-          </dl>
-          <p class="inv-price">${formatPrice(car.price)}<span>preço demonstrativo</span></p>
-          <div class="inv-actions">
-            <button type="button" class="btn btn-primary" data-open="${car.id}">Conhecer o veículo</button>
-            <a class="btn btn-ghost" href="${whatsappLink(availabilityMessage(car))}" target="_blank" rel="noopener noreferrer">Consultar disponibilidade</a>
-          </div>
-        </div>
-      </li>`
-    )
-    .join("");
-
-  const open = (car) => {
+  const open = (car, trigger) => {
+    opener = trigger;
     active = car;
     const img = $(".inv-sheetMedia img", dialog);
     img.src = car.image.src;
@@ -325,6 +191,7 @@ function initInventory() {
     $(".inv-sheetTitle", dialog).textContent = car.model;
     $(".inv-price", dialog).innerHTML = `${formatPrice(car.price)}<span>preço demonstrativo</span>`;
     $(".inv-specList", dialog).innerHTML = [
+      ["Categoria", categoryLabel(car.category)],
       ["Ano", car.year],
       ["Quilometragem", formatKm(car.km)],
       ["Motor", car.engine],
@@ -339,13 +206,6 @@ function initInventory() {
     dialog.showModal();
   };
 
-  grid.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-open]");
-    if (!btn) return;
-    opener = btn;
-    open(inventory.find((c) => c.id === btn.dataset.open));
-  });
-
   dialog.addEventListener("close", () => opener?.focus());
   dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
   $(".inv-close", dialog).addEventListener("click", () => dialog.close());
@@ -354,6 +214,83 @@ function initInventory() {
     dialog.close();
     selectInterest(carLabel(active), "visita");
   });
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-vehicle]");
+    if (btn) open(findCar(btn.dataset.vehicle), btn);
+  });
+}
+
+function initFeatured() {
+  $(".fe-grid").innerHTML = inventory
+    .filter((car) => car.featured)
+    .map(
+      (car, i) => `<article class="reveal fe-card" data-slot="${i}" style="transition-delay: ${i * 120}ms">
+        <div class="fe-media">${imgTag(car)}</div>
+        <div class="fe-body">
+          <p class="fe-meta">${escape(categoryLabel(car.category))}, ${car.year}</p>
+          <h3 class="fe-name"><span>${escape(car.brand)}</span> ${escape(car.model)}</h3>
+          <p class="fe-price">${formatPrice(car.price)}</p>
+          <div class="fe-actions">
+            <button type="button" class="btn btn-primary" data-vehicle="${car.id}">Ver detalhes</button>
+            <a class="btn btn-ghost" href="${whatsappLink(availabilityMessage(car))}" target="_blank" rel="noopener noreferrer">Consultar pelo WhatsApp</a>
+          </div>
+        </div>
+      </article>`
+    )
+    .join("");
+}
+
+function renderInventory(filter) {
+  const cars = filter === "todos" ? inventory : inventory.filter((c) => c.category === filter);
+  $(".inv-grid").innerHTML = cars
+    .map(
+      (car, i) => `<li class="reveal inv-card" data-shown="true" style="--i: ${i}">
+        <div class="inv-media">
+          ${imgTag(car)}
+          <span class="inv-tag">${escape(categoryLabel(car.category))}</span>
+        </div>
+        <div class="inv-body">
+          <div class="inv-title">
+            <p class="inv-brand">${escape(car.brand)}</p>
+            <h3>${escape(car.model)}</h3>
+          </div>
+          <dl class="inv-facts">
+            <div><dt>Ano</dt><dd>${car.year}</dd></div>
+            <div><dt>Quilometragem</dt><dd>${formatKm(car.km)}</dd></div>
+            <div><dt>Motor</dt><dd>${escape(car.engine)}</dd></div>
+          </dl>
+          <p class="inv-price">${formatPrice(car.price)}<span>preço demonstrativo</span></p>
+          <div class="inv-actions">
+            <a class="btn btn-primary" href="${whatsappLink(availabilityMessage(car))}" target="_blank" rel="noopener noreferrer">Consultar pelo WhatsApp</a>
+            <button type="button" class="btn btn-ghost" data-vehicle="${car.id}">Ver detalhes</button>
+          </div>
+        </div>
+      </li>`
+    )
+    .join("");
+  const n = cars.length;
+  $(".inv-count").textContent = `${n} ${n === 1 ? "veículo" : "veículos"}`;
+}
+
+function setFilter(filter) {
+  $$(".inv-filter").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.filter === filter)));
+  renderInventory(filter);
+}
+
+function initInventory() {
+  const options = [{ id: "todos", label: "Todos" }, ...categories];
+  $(".inv-filters").innerHTML = options
+    .map((c) => {
+      const n = c.id === "todos" ? inventory.length : inventory.filter((car) => car.category === c.id).length;
+      return `<button type="button" class="inv-filter" data-filter="${c.id}" aria-pressed="${c.id === "todos"}">${escape(c.label)}<span>${n}</span></button>`;
+    })
+    .join("");
+  $(".inv-filters").addEventListener("click", (e) => {
+    const btn = e.target.closest(".inv-filter");
+    if (btn) setFilter(btn.dataset.filter);
+  });
+  renderInventory("todos");
 
   $(".ft-credits ul").insertAdjacentHTML(
     "beforeend",
@@ -366,6 +303,29 @@ function initInventory() {
       )
       .join("")
   );
+}
+
+function initCategories() {
+  $(".cat-grid").innerHTML = categories
+    .map((c, i) => {
+      const car = findCar(c.cover);
+      const n = inventory.filter((v) => v.category === c.id).length;
+      return `<li class="reveal cat-item" style="transition-delay: ${i * 100}ms">
+        <a class="cat-link" href="#estoque" data-category="${c.id}">
+          <span class="cat-media">${imgTag(car)}</span>
+          <span class="cat-body">
+            <span class="cat-name">${escape(c.label)}</span>
+            <span class="cat-text">${escape(c.text)}</span>
+            <span class="cat-count">${n} ${n === 1 ? "veículo" : "veículos"} em estoque</span>
+          </span>
+        </a>
+      </li>`;
+    })
+    .join("");
+  $(".cat-grid").addEventListener("click", (e) => {
+    const link = e.target.closest("[data-category]");
+    if (link) setFilter(link.dataset.category);
+  });
 }
 
 const digits = (v) => v.replace(/\D/g, "").slice(0, 11);
@@ -396,7 +356,7 @@ function initContact() {
   const done = $(".ct-done");
   const submit = $(".ct-submit", form);
   const select = $("#f-vehicle");
-  const vehicles = [`Vértice ${featured.name}`, ...inventory.map(carLabel), "Ainda não decidi"];
+  const vehicles = [...inventory.map(carLabel), "Ainda não decidi"];
   const intents = { visita: "Agendar visita", informacoes: "Receber mais informações" };
   const touched = new Set();
   const field = (n) => form.elements.namedItem(n);
@@ -509,8 +469,9 @@ if (!site.whatsappIsPlaceholder) $$(".wa-placeholder").forEach((el) => el.remove
 $(".ft-year").textContent = new Date().getFullYear();
 initHeader();
 initHero();
-initGallery();
-initSpecs();
+initVehicleDialog();
+initFeatured();
 initInventory();
+initCategories();
 initContact();
 initReveal();
