@@ -1,9 +1,9 @@
 export const site = {
   name: "Vértice Motors",
 
-  // Número fictício. Substitua pelo WhatsApp real no formato internacional, só dígitos (ex.: 5511999999999).
-  whatsappNumber: "5500000000000",
-  whatsappIsPlaceholder: true,
+  // WhatsApp no formato internacional, só dígitos (país + DDD + número).
+  whatsappNumber: "5547992543802",
+  whatsappIsPlaceholder: false,
 };
 
 export function whatsappLink(message) {
